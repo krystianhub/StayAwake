@@ -1,34 +1,32 @@
-pub(crate) mod offset_generator;
+mod config;
+mod offset_generator;
 
-use crate::offset_generator::OffsetGenerator;
-use anyhow::{Context, Result};
+use crate::{config::Config, offset_generator::OffsetGenerator};
+use anyhow::Result;
 use dotenv::dotenv;
 use mouse_rs::Mouse;
-use std::{env, time::Duration};
 use tokio::time;
 use tracing::{debug, error, info, trace};
-
-const STAYAWAKE_INTERVAL_NAME: &str = "STAYAWAKE_INTERVAL";
-const DEFAULT_INTERVAL_SECS: u64 = 60;
+use tracing_subscriber::EnvFilter;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
     dotenv().ok();
-    tracing_subscriber::fmt::init();
+
+    let filter_layer = EnvFilter::try_from_default_env().or_else(|_| EnvFilter::try_new("info"))?;
+    tracing_subscriber::fmt()
+        .with_env_filter(filter_layer)
+        .init();
 
     info!("Initializing StayAwake application");
 
-    let mut offset_gen = OffsetGenerator::new();
+    let config = envy::from_env::<Config>()?;
+    debug!(?config);
 
-    let stayawake_interval: Duration = env::var(STAYAWAKE_INTERVAL_NAME)
-        .map(|interval_env| interval_env.parse::<u64>().map(Duration::from_secs))
-        .unwrap_or_else(|_| Ok(Duration::from_secs(DEFAULT_INTERVAL_SECS)))
-        .context(format!("Cannot parse {} value", STAYAWAKE_INTERVAL_NAME))?;
-
-    debug!(value = ?stayawake_interval, "{}", &STAYAWAKE_INTERVAL_NAME);
+    let mut offset_gen = OffsetGenerator::new(&config);
 
     let mouse = Mouse::new();
-    let mut interval = time::interval(stayawake_interval);
+    let mut interval = time::interval(config.stayawake_interval);
 
     let get_pos_err = |err| error!(error = ?err, "Cannot get mouse position");
 
@@ -39,7 +37,7 @@ async fn main() -> Result<()> {
     loop {
         trace!("Loop start");
 
-        // Grab mouse position, wait for X interval
+        // Grab mouse position
         let pos1 = match mouse.get_position() {
             Ok(pos) => pos,
             Err(err) => {
@@ -48,10 +46,12 @@ async fn main() -> Result<()> {
             }
         };
 
+        // Wait
         trace!("Tick started");
         interval.tick().await;
         trace!("Tick completed");
 
+        // Measure mouse position again
         let pos2 = match mouse.get_position() {
             Ok(pos) => pos,
             Err(err) => {

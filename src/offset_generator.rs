@@ -1,3 +1,4 @@
+use crate::config::Config;
 use mouse_rs::types::Point;
 use rand::{
     distributions::Uniform,
@@ -6,19 +7,18 @@ use rand::{
 };
 use tracing::trace;
 
-const OFFSET_PIXEL_MIN: usize = 50;
-const OFFSET_PIXEL_MAX: usize = 100;
-
-pub(crate) struct OffsetGenerator {
+pub(crate) struct OffsetGenerator<'a> {
     rng: ThreadRng,
     range: Uniform<usize>,
+    config: &'a Config,
 }
 
-impl OffsetGenerator {
-    pub fn new() -> OffsetGenerator {
+impl OffsetGenerator<'_> {
+    pub fn new(config: &Config) -> OffsetGenerator {
         OffsetGenerator {
             rng: thread_rng(),
-            range: Uniform::new_inclusive(OFFSET_PIXEL_MIN, OFFSET_PIXEL_MAX),
+            range: Uniform::new_inclusive(config.offset_pixel_min, config.offset_pixel_max),
+            config,
         }
     }
 
@@ -31,7 +31,8 @@ impl OffsetGenerator {
     }
 
     pub(crate) fn get_random_offset_position(&mut self, init: &Point) -> Point {
-        let is_near_zero = init.x < OFFSET_PIXEL_MAX || init.y < OFFSET_PIXEL_MAX;
+        let is_near_zero =
+            init.x < self.config.offset_pixel_min || init.y < self.config.offset_pixel_max;
 
         let mut x_offset = self.range.sample(&mut self.rng) as i32;
         let mut y_offset = self.range.sample(&mut self.rng) as i32;

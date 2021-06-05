@@ -1,4 +1,17 @@
-TODO
+![StayAwake Logo](images/logo.jpg)
 
+# StayAwake
 
-Add moving mouse icon
+## Introduction
+
+???
+
+## Installation
+
+### Cargo
+
+> cargo install stayawake
+
+### Manual
+
+???
