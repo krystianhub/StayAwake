@@ -1,0 +1,14 @@
+[package]
+authors = ["Krystian <krystian.inbox@gmail.com>"]
+edition = "2018"
+name = "stayawake"
+version = "0.1.0"
+
+[dependencies]
+anyhow = "1.0"
+dotenv = "0.15"
+mouse-rs = "0.4"
+rand = "0.8.0"
+tokio = {version = "1", features = ["rt", "time", "macros"]}
+tracing = "0.1"
+tracing-subscriber = "0.2"
