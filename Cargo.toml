@@ -12,3 +12,7 @@ rand = "0.8.0"
 tokio = {version = "1", features = ["rt", "time", "macros"]}
 tracing = "0.1"
 tracing-subscriber = "0.2"
+
+[profile.release]
+codegen-units = 1
+lto = true

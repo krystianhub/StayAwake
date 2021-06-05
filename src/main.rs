@@ -1,14 +1,15 @@
-use std::{env, time::Duration};
+pub(crate) mod offset_generator;
 
+use crate::offset_generator::OffsetGenerator;
 use anyhow::{Context, Result};
 use dotenv::dotenv;
 use mouse_rs::Mouse;
-use rand::{distributions::Uniform, prelude::Distribution, thread_rng};
+use std::{env, time::Duration};
 use tokio::time;
 use tracing::{debug, error, info, trace};
 
 const STAYAWAKE_INTERVAL_NAME: &str = "STAYAWAKE_INTERVAL";
-const DEFAULT_INTERVAL: u64 = 60;
+const DEFAULT_INTERVAL_SECS: u64 = 60;
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<()> {
@@ -17,12 +18,11 @@ async fn main() -> Result<()> {
 
     info!("Initializing StayAwake application");
 
-    let mut rng = thread_rng();
-    let range: Uniform<usize> = Uniform::new_inclusive(2, 5);
+    let mut offset_gen = OffsetGenerator::new();
 
     let stayawake_interval: Duration = env::var(STAYAWAKE_INTERVAL_NAME)
         .map(|interval_env| interval_env.parse::<u64>().map(Duration::from_secs))
-        .unwrap_or_else(|_| Ok(Duration::from_secs(DEFAULT_INTERVAL)))
+        .unwrap_or_else(|_| Ok(Duration::from_secs(DEFAULT_INTERVAL_SECS)))
         .context(format!("Cannot parse {} value", STAYAWAKE_INTERVAL_NAME))?;
 
     debug!(value = ?stayawake_interval, "{}", &STAYAWAKE_INTERVAL_NAME);
@@ -34,7 +34,7 @@ async fn main() -> Result<()> {
 
     info!("Initialization finished successfully");
 
-    interval.tick().await;
+    interval.tick().await; // Initial tick is instant
 
     loop {
         trace!("Loop start");
@@ -60,17 +60,23 @@ async fn main() -> Result<()> {
             }
         };
 
+        trace!(?pos1, ?pos2, "Interval position results");
+
         // If position didn't change during the last interval, move the mouse now
         if pos1.x == pos2.x && pos1.y == pos2.y {
-            let x_offset = range.sample(&mut rng);
-            let y_offset = range.sample(&mut rng);
+            let new_pos = offset_gen.get_random_offset_position(&pos1);
 
-            let new_x = pos1.x + x_offset;
-            let new_y = pos1.y + y_offset;
+            trace!(
+                "Movement not detected, moving mouse from {:?} to {:?}",
+                &pos1,
+                &new_pos
+            );
 
-            if let Err(err) = mouse.move_to(new_x as i32, new_y as i32) {
+            if let Err(err) = mouse.move_to(new_pos.x as i32, new_pos.y as i32) {
                 error!(error = ?err, "Cannot move the mouse to a new position");
             }
+        } else {
+            trace!("Movement detected, not moving mouse");
         }
     }
 }
