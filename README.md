@@ -1,4 +1,7 @@
-![StayAwake Logo](images/logo.jpg)
+<p align="center">
+    <img src="images/logo.jpg"
+        alt="StayAwake logo" />
+</p>
 
 # StayAwake
 
