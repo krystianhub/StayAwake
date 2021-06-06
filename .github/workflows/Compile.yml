@@ -1,0 +1,29 @@
+name: Compile
+
+on: [push, pull_request]
+
+jobs:
+  compile:
+    name: Compile for ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        name: [Windows, MacOS]
+
+        include:
+          - name: Windows
+            os: windows-latest
+          - name: MacOS
+            os: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v1
+      - name: Run "cargo check"
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
