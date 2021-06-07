@@ -3,6 +3,13 @@
         alt="StayAwake logo" />
 </p>
 
+<p align="center">
+    <a href="https://github.com/krystianhub/StayAwake/actions/workflows/Compile.yml">
+        <img src="https://github.com/krystianhub/StayAwake/actions/workflows/Compile.yml/badge.svg"
+            alt="Build status" />
+    </a>
+</p>
+
 # StayAwake
 
 ## Introduction
