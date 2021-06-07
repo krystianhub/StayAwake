@@ -18,7 +18,11 @@ async fn main() -> Result<()> {
         .with_env_filter(filter_layer)
         .init();
 
-    info!("Initializing StayAwake application");
+    info!(concat!(
+        "Initializing StayAwake (",
+        env!("CARGO_PKG_VERSION"),
+        ")"
+    ));
 
     let config = envy::from_env::<Config>()?;
     debug!(?config);
