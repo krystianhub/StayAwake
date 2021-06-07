@@ -7,7 +7,9 @@
 
 ## Introduction
 
-???
+StayAwake is a simple program for Windows & MacOS to keep your system awake without affecting workflow.
+
+Inspired by [stay-awake](https://pypi.org/project/stay-awake/) package for Python.
 
 ## Installation
 
