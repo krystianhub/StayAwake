@@ -1,4 +1,4 @@
-name: Compile
+name: Build
 
 on:
   push:
@@ -9,8 +9,8 @@ on:
       - "**.md"
 
 jobs:
-  compile:
-    name: Compile for ${{ matrix.name }}
+  build:
+    name: Build for ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

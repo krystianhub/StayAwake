@@ -4,8 +4,8 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/krystianhub/StayAwake/actions/workflows/Compile.yml">
-        <img src="https://github.com/krystianhub/StayAwake/actions/workflows/Compile.yml/badge.svg"
+    <a href="https://github.com/krystianhub/StayAwake/actions/workflows/Build.yml">
+        <img src="https://github.com/krystianhub/StayAwake/actions/workflows/Build.yml/badge.svg"
             alt="Build status" />
     </a>
 </p>
