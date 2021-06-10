@@ -14,26 +14,31 @@
 
 ## Introduction
 
-StayAwake is a simple program for Windows & MacOS to keep your system awake without affecting workflow.
+StayAwake is a simple program for Windows & MacOS to keep your system awake without affecting your workflow.
 
 Inspired by [stay-awake](https://pypi.org/project/stay-awake/) package for Python.
 
+As with the Python package the program is only triggered when you don't do any mouse movements and it is completely headless (it is intended to be used as a command line tool).
+
+### How does it work?
+
+If in a span of 60 seconds you don't move your mouse, this program will automatically move your mouse for about 5 to 15 pixels randomly. There won't be any mouse displacement! If you are working, this will do absolutely nothing!
+
+All settings like the time interval or the range of random mouse movement is fully customizable via environment variables or **[.env](.env)** file.
+
 ## Installation
 
-<!-- ### Cargo
-> cargo install stayawake 
--->
+You can download the [latest version](https://github.com/krystianhub/StayAwake/releases/latest) from Github Releases and execute the binary via terminal.
 
-### Manual
+## Configuration
 
-Get pre-compiled binary via cURL from Github Releases ???
+Binary comes with a default configuration. However, it can be overriden by .env file residing in the same location as the binary itself.
 
-Any automated scripts that can help with it?
+There are only 4 available configuration properties:
 
-## TODO
-
-- Add README content & indicate it works for Windows & MacOS only
-- Add example .env file in README.md
-- (Optional) Prepare for Crates.io release
-- (Optional) Github CI/CD publishing to Crates.io?
-- (Optional) Add Dockerfile?
+```properties
+RUST_LOG=INFO # logging level
+STAYAWAKE_INTERVAL=60 # in seconds
+OFFSET_PIXEL_MIN=5 # in pixels
+OFFSET_PIXEL_MAX=15 # in pixels
+```
