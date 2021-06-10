@@ -32,7 +32,7 @@ You can download the [latest version](https://github.com/krystianhub/StayAwake/r
 
 ## Configuration
 
-Binary comes with a default configuration. However, it can be overridden by **[.env](.env)** file residing in the same location as the binary itself.
+Binary comes with a default configuration. However, it can be overridden by creating **[.env](.env)** file in the same location as the binary itself.
 
 There are only 4 available configuration properties:
 
