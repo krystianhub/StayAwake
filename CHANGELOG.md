@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.1] - 2021-07-01
 ### Added
 - Support for inhibiting Power Management (Windows & MacOS)
-- Added [CHANGELOG.md file](CHANGELOG.md)
-- Added [LICENSE file](LICENSE)
+- Added [CHANGELOG.md](CHANGELOG.md) file
+- Added [LICENSE](LICENSE) file
 
 ## [0.1.0] - 2021-06-10
 ### Added
