@@ -1,5 +1,6 @@
 mod config;
 mod offset_generator;
+mod power;
 
 use crate::{config::Config, offset_generator::OffsetGenerator};
 use anyhow::Result;
@@ -37,6 +38,10 @@ async fn main() -> Result<()> {
     info!("Initialization finished successfully");
 
     interval.tick().await; // Initial tick is instant
+
+    // Create Power Manager lock
+    let lock = power::lock();
+    trace!(result = ?lock, "Inhibiting Power Management");
 
     loop {
         trace!("Loop start");

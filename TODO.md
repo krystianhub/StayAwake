@@ -1,5 +1,4 @@
 # TODO
 
-- (Optional) Prepare for Crates.io release
-- (Optional) Github CI/CD publishing to Crates.io?
-- (Optional) Add Dockerfile?
+- (Optional) Prepare for crates.io release
+- (Optional) Github CI/CD publishing to crates.io

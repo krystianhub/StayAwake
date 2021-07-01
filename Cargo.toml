@@ -2,7 +2,7 @@
 authors = ["Krystian <krystian.inbox@gmail.com>"]
 edition = "2018"
 name = "stayawake"
-version = "0.1.0"
+version = "0.1.1"
 
 [dependencies]
 anyhow = "1.0"
@@ -15,6 +15,23 @@ serde_with = "1.9.1"
 tokio = {version = "1", features = ["rt", "time", "macros"]}
 tracing = "0.1"
 tracing-subscriber = "0.2"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+wasmer_enumset = "1"
+winapi = {version = "0.3", features = [
+  "errhandlingapi",
+  "impl-default",
+  "handleapi",
+  "minwinbase",
+  "minwindef",
+  "winbase",
+  "winnt",
+]}
+
+[target.'cfg(target_os="macos")'.dependencies]
+core-foundation = "0.9.1"
+libc = "0.2"
+mach = "0.3"
 
 [profile.release]
 codegen-units = 1
