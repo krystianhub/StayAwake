@@ -1,7 +1,12 @@
 mod config;
 mod offset_generator;
+mod power;
 
-use crate::{config::Config, offset_generator::OffsetGenerator};
+use crate::{
+    config::Config,
+    offset_generator::OffsetGenerator,
+    power::{InhibitionManager, LockType},
+};
 use anyhow::Result;
 use dotenv::dotenv;
 use mouse_rs::Mouse;
@@ -37,6 +42,11 @@ async fn main() -> Result<()> {
     info!("Initialization finished successfully");
 
     interval.tick().await; // Initial tick is instant
+
+    // Create Power Manager
+    let manager = power::manager()?;
+    let lock = manager.lock(LockType::AutomaticSuspend | LockType::ManualSuspend);
+    trace!(result = ?lock, "Inhibiting Power Management");
 
     loop {
         trace!("Loop start");
