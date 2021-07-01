@@ -1,13 +1,13 @@
 #[derive(Debug)]
 pub enum Error {
-    UnsupportedPlatform,
+    UnsupportedOperatingSystem,
 }
 
 impl std::error::Error for Error {}
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "unsupported platform")
+        write!(f, "unsupported operating system")
     }
 }
 
@@ -16,7 +16,7 @@ pub struct Lock;
 
 impl Lock {
     fn new() -> Result<Self, Error> {
-        Err(Error::UnsupportedPlatform)
+        Err(Error::UnsupportedOperatingSystem)
     }
 }
 
