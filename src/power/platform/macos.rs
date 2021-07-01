@@ -68,7 +68,7 @@ impl crate::power::Lock for Lock {
     type Error = Error;
     type Lock = Lock;
 
-    fn new(&self) -> Result<Lock, Self::Error> {
+    fn new() -> Result<Lock, Self::Error> {
         Lock::new()
     }
 }

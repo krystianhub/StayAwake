@@ -40,7 +40,7 @@ async fn main() -> Result<()> {
     interval.tick().await; // Initial tick is instant
 
     // Create Power Manager lock
-    let lock = power::lock()?;
+    let lock = power::lock();
     trace!(result = ?lock, "Inhibiting Power Management");
 
     loop {

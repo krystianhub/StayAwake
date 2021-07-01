@@ -16,8 +16,9 @@ tokio = {version = "1", features = ["rt", "time", "macros"]}
 tracing = "0.1"
 tracing-subscriber = "0.2"
 
-[target.'cfg(target_os = "windows")'.dependencies.winapi]
-features = [
+[target.'cfg(target_os = "windows")'.dependencies]
+wasmer_enumset = "1"
+winapi = {version = "0.3", features = [
   "errhandlingapi",
   "impl-default",
   "handleapi",
@@ -25,8 +26,7 @@ features = [
   "minwindef",
   "winbase",
   "winnt",
-]
-version = "0.3"
+]}
 
 [target.'cfg(target_os="macos")'.dependencies]
 core-foundation = "0.9.1"

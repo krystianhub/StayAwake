@@ -1,25 +1,3 @@
-use wasmer_enumset::EnumSet;
-
-use crate::power::LockType;
-
-#[derive(Debug)]
-pub struct InhibitionManager();
-
-impl InhibitionManager {
-    pub fn new() -> Result<Self, Error> {
-        Ok(Self())
-    }
-}
-
-impl crate::power::InhibitionManager for InhibitionManager {
-    type Error = Error;
-    type Lock = Lock;
-
-    fn lock(&self, _types: EnumSet<LockType>) -> Result<Lock, Self::Error> {
-        Lock::new()
-    }
-}
-
 #[derive(Debug)]
 pub enum Error {
     UnsupportedPlatform,
@@ -42,4 +20,11 @@ impl Lock {
     }
 }
 
-impl crate::power::Lock for Lock {}
+impl crate::power::Lock for Lock {
+    type Error = Error;
+    type Lock = Lock;
+
+    fn new() -> Result<Lock, Self::Error> {
+        Lock::new()
+    }
+}

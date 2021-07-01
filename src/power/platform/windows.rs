@@ -1,37 +1,26 @@
-use wasmer_enumset::EnumSet;
+use wasmer_enumset::EnumSetType;
 use winapi::shared::minwindef::DWORD;
 use winapi::um::errhandlingapi;
 use winapi::um::minwinbase::REASON_CONTEXT;
 use winapi::um::winnt::{HANDLE, POWER_REQUEST_TYPE};
 use winapi::um::{handleapi, winbase, winnt};
 
-use crate::power::{LockType, POWER_DEFAULT_MESSAGE};
+use crate::power::POWER_DEFAULT_MESSAGE;
 
-#[derive(Debug)]
-pub struct InhibitionManager();
-
-impl InhibitionManager {
-    pub fn new() -> Result<Self, Error> {
-        Ok(Self())
-    }
-}
-
-impl crate::power::InhibitionManager for InhibitionManager {
-    type Error = Error;
-    type Lock = Lock;
-
-    fn lock(&self) -> Result<Lock, Self::Error> {
-        Lock::new()
-    }
-}
+const REQUEST_TYPES: &[LockType] = &[LockType::AutomaticSuspend, LockType::ManualSuspend];
 
 #[derive(Debug)]
 pub enum Error {
     FailedToCreateRequest(DWORD),
-    FailedToLock {
-        lock_type: LockType,
-        err_code: DWORD,
-    },
+    FailedToLock(DWORD),
+}
+
+#[derive(Debug, EnumSetType)]
+pub enum LockType {
+    /// Automatic suspension (managed by the system idle timer)
+    AutomaticSuspend,
+    /// Manual suspension
+    ManualSuspend,
 }
 
 impl std::error::Error for Error {}
@@ -40,9 +29,7 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Self::FailedToCreateRequest(_) => write!(f, "failed to create power request"),
-            Self::FailedToLock { lock_type, .. } => {
-                write!(f, "failed lock operation {:?}", lock_type)
-            }
+            Self::FailedToLock(_) => write!(f, "failed lock operation"),
         }
     }
 }
@@ -50,8 +37,6 @@ impl std::fmt::Display for Error {
 #[derive(Debug)]
 pub struct Lock {
     request: PowerRequest,
-    types: EnumSet<LockType>,
-    // LockType::AutomaticSuspend | LockType::ManualSuspend
 }
 
 impl Lock {
@@ -61,26 +46,23 @@ impl Lock {
 
         let mut failed: Option<(LockType, DWORD)> = None;
 
-        for lock_type in types.iter() {
+        for lock_type in REQUEST_TYPES.iter() {
             let result =
-                unsafe { winbase::PowerSetRequest(request.0, Self::request_type(lock_type)) };
+                unsafe { winbase::PowerSetRequest(request.0, Self::request_type(*lock_type)) };
             if result == 0 {
-                failed = Some((lock_type, unsafe { errhandlingapi::GetLastError() }));
+                failed = Some((*lock_type, unsafe { errhandlingapi::GetLastError() }));
                 break;
             }
         }
 
         match failed {
             Some((failed_type, err_code)) => {
-                for lock_type in types.iter().take_while(|t| *t != failed_type) {
-                    unsafe { winbase::PowerClearRequest(request.0, Self::request_type(lock_type)) };
+                for lock_type in REQUEST_TYPES.iter().take_while(|t| **t != failed_type) {
+                    unsafe { winbase::PowerClearRequest(request.0, Self::request_type(*lock_type)) };
                 }
-                Err(Error::FailedToLock {
-                    lock_type: failed_type,
-                    err_code,
-                })
+                Err(Error::FailedToLock(err_code))
             }
-            None => Ok(Self { request, types }),
+            None => Ok(Self { request }),
         }
     }
 
@@ -94,15 +76,22 @@ impl Lock {
 
 impl Drop for Lock {
     fn drop(&mut self) {
-        for lock_type in self.types.iter() {
-            unsafe { winbase::PowerClearRequest(self.request.0, Self::request_type(lock_type)) };
+        for lock_type in REQUEST_TYPES.iter() {
+            unsafe { winbase::PowerClearRequest(self.request.0, Self::request_type(*lock_type)) };
         }
     }
 }
 
 unsafe impl Send for Lock {}
 
-impl crate::power::Lock for Lock {}
+impl crate::power::Lock for Lock {
+    type Error = Error;
+    type Lock = Lock;
+
+    fn new() -> Result<Lock, Self::Error> {
+        Lock::new()
+    }
+}
 
 #[derive(Debug)]
 struct PowerRequest(HANDLE);

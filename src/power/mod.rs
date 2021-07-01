@@ -8,7 +8,7 @@ pub trait Lock: Send {
     type Error: std::error::Error;
     type Lock: Lock;
 
-    fn new(&self) -> Result<Self::Lock, Self::Error>;
+    fn new() -> Result<Self::Lock, Self::Error>;
 }
 
 /// Constructs a new [`Lock`] for the current platform.
