@@ -7,7 +7,11 @@ use winapi::um::{handleapi, winbase, winnt};
 
 use crate::power::POWER_DEFAULT_MESSAGE;
 
-const REQUEST_TYPES: &[LockType] = &[LockType::AutomaticSuspend, LockType::ManualSuspend];
+const REQUEST_TYPES: &[LockType] = &[
+    LockType::AutomaticSuspend,
+    LockType::ManualSuspend,
+    LockType::DisplaySuspend,
+];
 
 #[derive(Debug)]
 pub enum Error {
@@ -21,6 +25,8 @@ pub enum LockType {
     AutomaticSuspend,
     /// Manual suspension
     ManualSuspend,
+    /// Display suspension
+    DisplaySuspend,
 }
 
 impl std::error::Error for Error {}
@@ -58,7 +64,9 @@ impl Lock {
         match failed {
             Some((failed_type, err_code)) => {
                 for lock_type in REQUEST_TYPES.iter().take_while(|t| **t != failed_type) {
-                    unsafe { winbase::PowerClearRequest(request.0, Self::request_type(*lock_type)) };
+                    unsafe {
+                        winbase::PowerClearRequest(request.0, Self::request_type(*lock_type))
+                    };
                 }
                 Err(Error::FailedToLock(err_code))
             }
@@ -70,6 +78,7 @@ impl Lock {
         match lock_type {
             LockType::AutomaticSuspend => winnt::PowerRequestSystemRequired,
             LockType::ManualSuspend => winnt::PowerRequestAwayModeRequired,
+            LockType::DisplaySuspend => winnt::PowerRequestDisplayRequired,
         }
     }
 }
