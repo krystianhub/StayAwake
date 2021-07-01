@@ -20,8 +20,8 @@ impl crate::power::InhibitionManager for InhibitionManager {
     type Error = Error;
     type Lock = Lock;
 
-    fn lock(&self, types: EnumSet<LockType>) -> Result<Lock, Self::Error> {
-        Lock::new(types)
+    fn lock(&self) -> Result<Lock, Self::Error> {
+        Lock::new()
     }
 }
 
@@ -51,10 +51,11 @@ impl std::fmt::Display for Error {
 pub struct Lock {
     request: PowerRequest,
     types: EnumSet<LockType>,
+    // LockType::AutomaticSuspend | LockType::ManualSuspend
 }
 
 impl Lock {
-    fn new(types: EnumSet<LockType>) -> Result<Self, Error> {
+    fn new() -> Result<Self, Error> {
         let request =
             PowerRequest::new(POWER_DEFAULT_MESSAGE).map_err(Error::FailedToCreateRequest)?;
 
