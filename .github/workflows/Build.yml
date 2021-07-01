@@ -4,8 +4,6 @@ on:
   push:
     paths-ignore:
       - "**.md"
-    tags-ignore:
-      - "v*" # We don't want this to run on release
 
 jobs:
   build:
