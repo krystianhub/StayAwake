@@ -1,20 +1,20 @@
 [package]
 authors = ["Krystian <krystian.inbox@gmail.com>"]
-edition = "2018"
+edition = "2021"
 name = "stayawake"
-version = "0.1.1"
+version = "0.1.2"
 
 [dependencies]
 anyhow = "1.0"
 dotenv = "0.15"
 envy = "0.4"
 mouse-rs = "0.4"
-rand = "0.8.0"
+rand = "0.8"
 serde = {version = "1.0", features = ["derive"]}
-serde_with = "1.9.1"
+serde_with = "1"
 tokio = {version = "1", features = ["rt", "time", "macros"]}
 tracing = "0.1"
-tracing-subscriber = "0.2"
+tracing-subscriber = {version = "0.3", features = ["env-filter"]}
 
 [target.'cfg(target_os = "windows")'.dependencies]
 wasmer_enumset = "1"
@@ -29,7 +29,7 @@ winapi = {version = "0.3", features = [
 ]}
 
 [target.'cfg(target_os="macos")'.dependencies]
-core-foundation = "0.9.1"
+core-foundation = "0.9"
 libc = "0.2"
 mach = "0.3"
 
