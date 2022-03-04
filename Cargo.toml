@@ -1,7 +1,14 @@
 [package]
-authors = ["Krystian <krystian.inbox@gmail.com>"]
+authors = ["krystianhub"]
+categories = ["command-line-utilities"]
+description = "StayAwake is a simple program for Windows & MacOS to keep your system awake without affecting your workflow. Inspired by \"stay-awake\" package for Python."
 edition = "2021"
+exclude = [".github"]
+keywords = ["desktop", "power", "mouse", "awake"]
+license = "MIT"
 name = "stayawake"
+readme = "README.md"
+repository = "https://github.com/krystianhub/StayAwake"
 version = "0.1.2"
 
 [dependencies]
