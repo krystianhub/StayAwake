@@ -1,5 +1,5 @@
 [package]
-authors = ["krystianhub"]
+authors = ["krystianhub <krystian.inbox@gmail.com>"]
 categories = ["command-line-utilities"]
 description = "StayAwake is a simple program for Windows & MacOS to keep your system awake without affecting your workflow. Inspired by \"stay-awake\" package for Python."
 edition = "2021"
