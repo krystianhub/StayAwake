@@ -7,6 +7,7 @@ use rand::{
 };
 use tracing::trace;
 
+/// Random mouse position generator
 pub(crate) struct OffsetGenerator<'a> {
     rng: ThreadRng,
     range: Uniform<usize>,
@@ -30,6 +31,7 @@ impl OffsetGenerator<'_> {
         }
     }
 
+    /// Get randomly generated `Point`
     pub(crate) fn get_random_offset_position(&mut self, init: &Point) -> Point {
         let is_near_zero =
             init.x < self.config.offset_pixel_min || init.y < self.config.offset_pixel_max;

@@ -1,3 +1,8 @@
+//! StayAwake is a simple program for Windows & MacOS to keep your system awake without affecting your workflow.
+//! Inspired by [stay-awake](https://pypi.org/project/stay-awake/) package for Python.
+//!
+//! As with the Python package the program is only triggered when you don't do any mouse movements and it is completely headless (it is intended to be used as a command line tool).
+
 mod config;
 mod offset_generator;
 mod power;

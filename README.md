@@ -3,12 +3,9 @@
         alt="StayAwake logo" />
 </p>
 
-<p align="center">
-    <a href="https://github.com/krystianhub/StayAwake/actions/workflows/Build.yml">
-        <img src="https://github.com/krystianhub/StayAwake/actions/workflows/Build.yml/badge.svg"
-            alt="Build status" />
-    </a>
-</p>
+[![CI](https://github.com/krystianhub/StayAwake/workflows/Build/badge.svg)](https://github.com/krystianhub/StayAwake/actions)
+[![crates.io](https://img.shields.io/crates/v/stayawake.svg)](https://crates.io/crates/stayawake)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/krystianhub/StayAwake/blob/master/LICENSE)
 
 # StayAwake
 
@@ -29,6 +26,12 @@ All settings like the time interval or the range of random mouse movement is ful
 ## Installation
 
 You can download the [latest version](https://github.com/krystianhub/StayAwake/releases/latest) from Github Releases and execute the binary via terminal.
+
+Alternatively, you can install it via **cargo** command:
+
+```bash
+cargo install stayawake
+```
 
 ## Configuration
 

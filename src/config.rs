@@ -17,6 +17,7 @@ fn default_offset_pixel_max() -> usize {
     15
 }
 
+/// Configuration struct (.env file)
 #[serde_as]
 #[derive(Deserialize, Debug)]
 pub(crate) struct Config {
