@@ -4,6 +4,11 @@ on:
   push:
     paths-ignore:
       - "**.md"
+    tags-ignore:
+      - "v[0-9]+.*"
+  pull_request:
+    branches:
+      - "master"
 
 jobs:
   build:
@@ -28,7 +33,7 @@ jobs:
           toolchain: stable
 
       - uses: Swatinem/rust-cache@v1
-      
+
       - name: Run "cargo check"
         uses: actions-rs/cargo@v1
         with:
