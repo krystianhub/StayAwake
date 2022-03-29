@@ -36,22 +36,53 @@ impl OffsetGenerator<'_> {
         let is_near_zero =
             init.x < self.config.offset_pixel_min || init.y < self.config.offset_pixel_max;
 
+        let is_near_border =
+            init.x < self.config.border_pixel_size || init.y < self.config.border_pixel_size;
+
         let mut x_offset = self.range.sample(&mut self.rng) as i32;
         let mut y_offset = self.range.sample(&mut self.rng) as i32;
 
-        trace!(is_near_zero);
+        trace!(is_near_zero, is_near_border);
 
-        if !is_near_zero {
+        if !is_near_zero && !is_near_border {
             x_offset *= self.get_random_sign();
             y_offset *= self.get_random_sign();
         }
 
-        let x = init.x as i32 + x_offset;
-        let y = init.y as i32 + y_offset;
+        let x;
+        let y;
+
+        if is_near_border {
+            x = init.x as i32 - x_offset;
+            y = init.y as i32 - y_offset;
+        } else {
+            x = init.x as i32 + x_offset;
+            y = init.y as i32 + y_offset;
+        }
 
         Point {
             x: x as usize,
             y: y as usize,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::time::Duration;
+
+    use super::*;
+
+    #[test]
+    fn test_get_random_offset_position() {
+        let test_config = Config {
+            stayawake_interval: Duration::from_secs(15),
+            offset_pixel_min: 100,
+            offset_pixel_max: 150,
+            border_pixel_size: 800,
+        };
+
+        // TODO: test get_random_offset_position
+        // - Test different configs and so forth
     }
 }

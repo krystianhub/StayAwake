@@ -12,7 +12,7 @@ use anyhow::Result;
 use dotenv::dotenv;
 use mouse_rs::Mouse;
 use tokio::time;
-use tracing::{debug, error, info, trace};
+use tracing::{debug, error, error_span, info, trace, trace_span};
 use tracing_subscriber::EnvFilter;
 
 #[tokio::main(flavor = "current_thread")]
@@ -24,6 +24,9 @@ async fn main() -> Result<()> {
         .with_env_filter(filter_layer)
         .init();
 
+    let init_span = error_span!("initialization");
+    let init_span_entered = init_span.enter();
+
     info!(concat!(
         "Initializing StayAwake (",
         env!("CARGO_PKG_VERSION"),
@@ -33,20 +36,34 @@ async fn main() -> Result<()> {
     let config = envy::from_env::<Config>()?;
     debug!(?config);
 
+    // FIXME: Better logging of the errors?
+    trace!("Checking if configuration is valid");
+    config.validate()?;
+    trace!("Configuration is valid");
+
     let mut offset_gen = OffsetGenerator::new(&config);
 
     let mouse = Mouse::new();
     let mut interval = time::interval(config.stayawake_interval);
 
-    let get_pos_err = |err| error!(error = ?err, "Cannot get mouse position");
-
     info!("Initialization finished successfully");
+    drop(init_span_entered);
+
+    let get_pos_err = |err| error!(error = ?err, "Cannot get mouse position");
 
     interval.tick().await; // Initial tick is instant
 
     // Create Power Manager lock
-    let lock = power::lock();
-    trace!(result = ?lock, "Inhibiting Power Management");
+    {
+        let power_lock_span = trace_span!("power_lock");
+        let _power_lock_span_entered = power_lock_span.enter();
+
+        let lock = power::lock();
+        trace!(result = ?lock, "Inhibiting Power Management");
+    }
+
+    let loop_span = error_span!("main_loop");
+    let _loop_span_entered = loop_span.enter();
 
     loop {
         trace!("Loop start");

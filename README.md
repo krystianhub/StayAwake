@@ -41,7 +41,8 @@ There are only 4 available configuration properties:
 
 ```properties
 RUST_LOG=INFO # logging level
-STAYAWAKE_INTERVAL=60 # in seconds
-OFFSET_PIXEL_MIN=5 # in pixels
-OFFSET_PIXEL_MAX=15 # in pixels
+STAYAWAKE_INTERVAL=15 # in seconds
+OFFSET_PIXEL_MIN=100 # in pixels
+OFFSET_PIXEL_MAX=150 # in pixels
+BORDER_PIXEL_SIZE=800 # in pixels, operating window size (for example 800x800)
 ```
