@@ -34,17 +34,13 @@ async fn main() -> Result<()> {
     ));
 
     let config = envy::from_env::<Config>()?;
-    debug!(?config);
-
-    // FIXME: Better logging of the errors?
-    trace!("Checking if configuration is valid");
     config.validate()?;
-    trace!("Configuration is valid");
 
-    let mut offset_gen = OffsetGenerator::new(&config);
+    debug!(?config);
 
     let mouse = Mouse::new();
     let mut interval = time::interval(config.stayawake_interval);
+    let mut offset_gen = OffsetGenerator::new(config);
 
     info!("Initialization finished successfully");
     drop(init_span_entered);
