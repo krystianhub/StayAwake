@@ -72,7 +72,7 @@ impl Config {
             });
         }
 
-        // jump by pixel min have to be lower than max
+        // jump by pixel min have to be smaller than max
         if self.jump_by_pixel_min > self.jump_by_pixel_max {
             return Err(InvalidProperty {
                 property: "jump_by_pixel_min",
@@ -80,19 +80,11 @@ impl Config {
             });
         }
 
-        // pixel min have to be equal or bigger than border pixel size
-        if self.jump_by_pixel_min >= self.border_pixel_size {
+        // border pixel size have to be bigger than jump by pixel max
+        if self.border_pixel_size <= self.jump_by_pixel_max {
             return Err(InvalidProperty {
-                property: "jump_by_pixel_min",
-                message: "jump_by_pixel_min cannot be equal or bigger than border_pixel_size",
-            });
-        }
-
-        // pixel max have to be equal or bigger than border pixel size
-        if self.jump_by_pixel_max >= self.border_pixel_size {
-            return Err(InvalidProperty {
-                property: "jump_by_pixel_max",
-                message: "jump_by_pixel_max cannot be equal or bigger than border_pixel_size",
+                property: "border_pixel_size",
+                message: "border_pixel_size cannot be equal or smaller than jump_by_pixel_max",
             });
         }
 
@@ -129,10 +121,10 @@ mod tests {
 
         let result_err = result.unwrap_err();
         let InvalidProperty { property, message } = result_err;
-        assert_eq!(property, "jump_by_pixel_min");
+        assert_eq!(property, "border_pixel_size");
         assert_eq!(
             message,
-            "jump_by_pixel_min cannot be equal or bigger than border_pixel_size"
+            "border_pixel_size cannot be equal or smaller than jump_by_pixel_max"
         );
 
         // ----------------
@@ -149,10 +141,10 @@ mod tests {
 
         let result_err = result.unwrap_err();
         let InvalidProperty { property, message } = result_err;
-        assert_eq!(property, "jump_by_pixel_min");
+        assert_eq!(property, "border_pixel_size");
         assert_eq!(
             message,
-            "jump_by_pixel_min cannot be equal or bigger than border_pixel_size"
+            "border_pixel_size cannot be equal or smaller than jump_by_pixel_max"
         );
 
         // ----------------
