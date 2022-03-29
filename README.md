@@ -25,7 +25,7 @@ All settings like the time interval or the range of random mouse movement is ful
 
 ## Installation
 
-You can download the [latest version](https://github.com/krystianhub/StayAwake/releases/latest) from Github Releases and execute the binary via terminal.
+You can download the [latest version](https://github.com/krystianhub/StayAwake/releases/latest) from Github Releases.
 
 Alternatively, you can install it via **cargo** command:
 
