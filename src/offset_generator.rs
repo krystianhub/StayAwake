@@ -37,14 +37,14 @@ impl OffsetGenerator {
         let mut y_offset = self.range.sample(&mut self.rng) as i32;
 
         // Clamp initial values
-        let init_x = init.x.clamp(0, self.config.border_pixel_size);
-        let init_y = init.y.clamp(0, self.config.border_pixel_size);
+        let init_x = init.x.clamp(0, self.config.working_area.width);
+        let init_y = init.y.clamp(0, self.config.working_area.height);
 
         let is_x_near_zero = (init_x as i32 - x_offset) < 0;
         let is_y_near_zero = (init_y as i32 - y_offset) < 0;
 
-        let is_x_near_border = (init_x + x_offset as usize) > self.config.border_pixel_size;
-        let is_y_near_border = (init_y + y_offset as usize) > self.config.border_pixel_size;
+        let is_x_near_border = (init_x + x_offset as usize) > self.config.working_area.width;
+        let is_y_near_border = (init_y + y_offset as usize) > self.config.working_area.height;
 
         trace!(
             is_x_near_zero,
@@ -74,8 +74,8 @@ impl OffsetGenerator {
         };
 
         // Clamp final values
-        let x = x.clamp(0, self.config.border_pixel_size as i32) as usize;
-        let y = y.clamp(0, self.config.border_pixel_size as i32) as usize;
+        let x = x.clamp(0, self.config.working_area.width as i32) as usize;
+        let y = y.clamp(0, self.config.working_area.height as i32) as usize;
 
         Point { x, y }
     }
@@ -86,7 +86,7 @@ mod tests {
     use std::time::Duration;
 
     use super::*;
-    use crate::config::ConfigError;
+    use crate::config::{ConfigError, WorkingArea};
 
     struct PointAssertor {
         offset_gen: OffsetGenerator,
@@ -107,13 +107,13 @@ mod tests {
     fn setup(
         jump_by_pixel_min: usize,
         jump_by_pixel_max: usize,
-        border_pixel_size: usize,
+        working_area: WorkingArea,
     ) -> Result<OffsetGenerator, ConfigError> {
         let test_config = Config {
             stayawake_interval: Duration::from_secs(1),
             jump_by_pixel_min,
             jump_by_pixel_max,
-            border_pixel_size,
+            working_area,
         };
 
         test_config.validate()?;
@@ -123,7 +123,14 @@ mod tests {
 
     #[test]
     fn test_get_random_offset_position() -> Result<(), ConfigError> {
-        let offset_gen = setup(799, 799, 800)?;
+        let offset_gen = setup(
+            799,
+            799,
+            WorkingArea {
+                width: 800,
+                height: 800,
+            },
+        )?;
         let mut point_assertor = PointAssertor::new(offset_gen);
 
         let start = Point { x: 1, y: 1 };

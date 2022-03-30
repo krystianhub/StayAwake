@@ -1,7 +1,7 @@
 use crate::config::ConfigError::InvalidProperty;
-use serde::Deserialize;
+use serde::{de::Error, Deserialize, Deserializer};
 use serde_with::{serde_as, DurationSeconds};
-use std::time::Duration;
+use std::{num::ParseIntError, time::Duration};
 use thiserror::Error;
 
 /// Provides default value for stayawake_interval if STAYAWAKE_INTERVAL env var is not set
@@ -19,9 +19,49 @@ fn default_jump_by_pixel_max() -> usize {
     150
 }
 
-/// Provides default value for border_pixel_size if BORDER_PIXEL_SIZE env var is not set
-fn default_border_pixel_size() -> usize {
-    800
+/// Provides default value for working_area if WORKING_AREA env var is not set
+fn default_working_area() -> WorkingArea {
+    WorkingArea {
+        width: 1024,
+        height: 768,
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct WorkingArea {
+    pub(crate) width: usize,
+    pub(crate) height: usize,
+}
+
+impl<'de> Deserialize<'de> for WorkingArea {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s: String = Deserialize::deserialize(deserializer)?;
+
+        let split: Vec<&str> = s.split('x').take(3).collect(); // Taking 3 instead of 2, to test correctness of the parser
+
+        let unexpected_err = || D::Error::custom("Unexpected error with WORKING_AREA");
+        let parse_err =
+            |err: ParseIntError| D::Error::custom(format!("WORKING_AREA parsing error: {err}"));
+
+        if split.len() == 2 {
+            let width = split
+                .get(0)
+                .ok_or_else(unexpected_err)
+                .and_then(|x| x.parse::<usize>().map_err(parse_err))?;
+
+            let height = split
+                .get(1)
+                .ok_or_else(unexpected_err)
+                .and_then(|x| x.parse::<usize>().map_err(parse_err))?;
+
+            Ok(WorkingArea { width, height })
+        } else {
+            Err(D::Error::custom(r#"Expected format: "1024x768""#))
+        }
+    }
 }
 
 #[derive(Error, Debug)]
@@ -37,15 +77,15 @@ pub enum ConfigError {
 #[serde_as]
 #[derive(Deserialize, Debug)]
 pub(crate) struct Config {
-    #[serde_as(as = "DurationSeconds")]
+    #[serde_as(as = "DurationSeconds<u64>")]
     #[serde(default = "default_stayawake_interval")]
     pub(crate) stayawake_interval: Duration,
     #[serde(default = "default_jump_by_pixel_min")]
     pub(crate) jump_by_pixel_min: usize,
     #[serde(default = "default_jump_by_pixel_max")]
     pub(crate) jump_by_pixel_max: usize,
-    #[serde(default = "default_border_pixel_size")]
-    pub(crate) border_pixel_size: usize,
+    #[serde(default = "default_working_area")]
+    pub(crate) working_area: WorkingArea,
 }
 
 impl Config {
@@ -65,10 +105,10 @@ impl Config {
             });
         }
 
-        if self.border_pixel_size == 0 {
+        if self.working_area.width == 0 || self.working_area.height == 0 {
             return Err(InvalidProperty {
-                property: "border_pixel_size",
-                message: "border_pixel_size cannot be equal to zero",
+                property: "working_area",
+                message: "working_area height or/and width cannot be equal to zero",
             });
         }
 
@@ -80,11 +120,13 @@ impl Config {
             });
         }
 
-        // border pixel size have to be bigger than jump by pixel max
-        if self.border_pixel_size <= self.jump_by_pixel_max {
+        // working area size have to be bigger than jump by pixel max
+        if self.working_area.width <= self.jump_by_pixel_max
+            && self.working_area.height <= self.jump_by_pixel_max
+        {
             return Err(InvalidProperty {
-                property: "border_pixel_size",
-                message: "border_pixel_size cannot be equal or smaller than jump_by_pixel_max",
+                property: "working_area",
+                message: "working_area cannot be equal or smaller than jump_by_pixel_max",
             });
         }
 
@@ -102,7 +144,7 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: default_jump_by_pixel_min(),
             jump_by_pixel_max: default_jump_by_pixel_max(),
-            border_pixel_size: default_border_pixel_size(),
+            working_area: default_working_area(),
         };
 
         assert!(config.validate().is_ok());
@@ -113,7 +155,10 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 100,
             jump_by_pixel_max: 150,
-            border_pixel_size: 50,
+            working_area: WorkingArea {
+                width: 50,
+                height: 50,
+            },
         };
 
         let result = config.validate();
@@ -121,10 +166,10 @@ mod tests {
 
         let result_err = result.unwrap_err();
         let InvalidProperty { property, message } = result_err;
-        assert_eq!(property, "border_pixel_size");
+        assert_eq!(property, "working_area");
         assert_eq!(
             message,
-            "border_pixel_size cannot be equal or smaller than jump_by_pixel_max"
+            "working_area cannot be equal or smaller than jump_by_pixel_max"
         );
 
         // ----------------
@@ -133,7 +178,10 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 150,
             jump_by_pixel_max: 150,
-            border_pixel_size: 150,
+            working_area: WorkingArea {
+                width: 150,
+                height: 150,
+            },
         };
 
         let result = config.validate();
@@ -141,10 +189,10 @@ mod tests {
 
         let result_err = result.unwrap_err();
         let InvalidProperty { property, message } = result_err;
-        assert_eq!(property, "border_pixel_size");
+        assert_eq!(property, "working_area");
         assert_eq!(
             message,
-            "border_pixel_size cannot be equal or smaller than jump_by_pixel_max"
+            "working_area cannot be equal or smaller than jump_by_pixel_max"
         );
 
         // ----------------
@@ -153,7 +201,10 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 99,
             jump_by_pixel_max: 99,
-            border_pixel_size: 100,
+            working_area: WorkingArea {
+                width: 100,
+                height: 100,
+            },
         };
 
         assert!(config.validate().is_ok());
@@ -164,7 +215,10 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 101,
             jump_by_pixel_max: 100,
-            border_pixel_size: 150,
+            working_area: WorkingArea {
+                width: 150,
+                height: 150,
+            },
         };
 
         let result = config.validate();
@@ -184,7 +238,10 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 0,
             jump_by_pixel_max: 1,
-            border_pixel_size: 150,
+            working_area: WorkingArea {
+                width: 150,
+                height: 150,
+            },
         };
 
         let result = config.validate();
@@ -201,7 +258,10 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 1,
             jump_by_pixel_max: 0,
-            border_pixel_size: 150,
+            working_area: WorkingArea {
+                width: 150,
+                height: 150,
+            },
         };
 
         let result = config.validate();
@@ -218,7 +278,10 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 100,
             jump_by_pixel_max: 100,
-            border_pixel_size: 0,
+            working_area: WorkingArea {
+                width: 0,
+                height: 0,
+            },
         };
 
         let result = config.validate();
@@ -226,7 +289,33 @@ mod tests {
 
         let result_err = result.unwrap_err();
         let InvalidProperty { property, message } = result_err;
-        assert_eq!(property, "border_pixel_size");
-        assert_eq!(message, "border_pixel_size cannot be equal to zero");
+        assert_eq!(property, "working_area");
+        assert_eq!(
+            message,
+            "working_area height or/and width cannot be equal to zero"
+        );
+
+        // ----------------
+
+        let config = Config {
+            stayawake_interval: default_stayawake_interval(),
+            jump_by_pixel_min: 100,
+            jump_by_pixel_max: 100,
+            working_area: WorkingArea {
+                width: 0,
+                height: 150,
+            },
+        };
+
+        let result = config.validate();
+        assert!(result.is_err());
+
+        let result_err = result.unwrap_err();
+        let InvalidProperty { property, message } = result_err;
+        assert_eq!(property, "working_area");
+        assert_eq!(
+            message,
+            "working_area height or/and width cannot be equal to zero"
+        );
     }
 }
