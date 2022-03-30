@@ -36,15 +36,20 @@ impl OffsetGenerator {
         let mut x_offset = self.range.sample(&mut self.rng) as i32;
         let mut y_offset = self.range.sample(&mut self.rng) as i32;
 
+        let start_x = self.config.init_point.x;
+        let start_y = self.config.init_point.y;
+        let end_x = start_x + self.config.working_area.width;
+        let end_y = start_y + self.config.working_area.height;
+
         // Clamp initial values
-        let init_x = init.x.clamp(0, self.config.working_area.width);
-        let init_y = init.y.clamp(0, self.config.working_area.height);
+        let init_x = init.x.clamp(start_x, end_x);
+        let init_y = init.y.clamp(start_y, end_y);
 
-        let is_x_near_zero = (init_x as i32 - x_offset) < 0;
-        let is_y_near_zero = (init_y as i32 - y_offset) < 0;
+        let is_x_near_zero = (init_x as i32 - x_offset) < start_x as i32;
+        let is_y_near_zero = (init_y as i32 - y_offset) < start_y as i32;
 
-        let is_x_near_border = (init_x + x_offset as usize) > self.config.working_area.width;
-        let is_y_near_border = (init_y + y_offset as usize) > self.config.working_area.height;
+        let is_x_near_border = (init_x + x_offset as usize) > end_x;
+        let is_y_near_border = (init_y + y_offset as usize) > end_y;
 
         trace!(
             is_x_near_zero,
@@ -74,8 +79,8 @@ impl OffsetGenerator {
         };
 
         // Clamp final values
-        let x = x.clamp(0, self.config.working_area.width as i32) as usize;
-        let y = y.clamp(0, self.config.working_area.height as i32) as usize;
+        let x = x.clamp(start_x as i32, end_x as i32) as usize;
+        let y = y.clamp(start_y as i32, end_y as i32) as usize;
 
         Point { x, y }
     }
@@ -86,7 +91,10 @@ mod tests {
     use std::time::Duration;
 
     use super::*;
-    use crate::config::{ConfigError, WorkingArea};
+    use crate::{
+        config::ConfigError,
+        models::{InitPoint, WorkingArea},
+    };
 
     struct PointAssertor {
         offset_gen: OffsetGenerator,
@@ -107,12 +115,14 @@ mod tests {
     fn setup(
         jump_by_pixel_min: usize,
         jump_by_pixel_max: usize,
+        init_point: InitPoint,
         working_area: WorkingArea,
     ) -> Result<OffsetGenerator, ConfigError> {
         let test_config = Config {
             stayawake_interval: Duration::from_secs(1),
             jump_by_pixel_min,
             jump_by_pixel_max,
+            init_point,
             working_area,
         };
 
@@ -126,6 +136,7 @@ mod tests {
         let offset_gen = setup(
             799,
             799,
+            InitPoint { x: 0, y: 0 },
             WorkingArea {
                 width: 800,
                 height: 800,
@@ -167,6 +178,23 @@ mod tests {
 
         let start = Point { x: 2, y: 2 };
         let expected = Point { x: 0, y: 0 };
+        point_assertor.assert_point_eq(start, expected);
+
+        // -----------------
+
+        let offset_gen = setup(
+            50,
+            50,
+            InitPoint { x: 50, y: 50 },
+            WorkingArea {
+                width: 51,
+                height: 51,
+            },
+        )?;
+        let mut point_assertor = PointAssertor::new(offset_gen);
+
+        let start = Point { x: 0, y: 0 };
+        let expected = Point { x: 100, y: 100 };
         point_assertor.assert_point_eq(start, expected);
 
         Ok(())

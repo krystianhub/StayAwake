@@ -1,7 +1,10 @@
-use crate::config::ConfigError::InvalidProperty;
-use serde::{de::Error, Deserialize, Deserializer};
+use crate::{
+    config::ConfigError::InvalidProperty,
+    models::{InitPoint, WorkingArea},
+};
+use serde::Deserialize;
 use serde_with::{serde_as, DurationSeconds};
-use std::{num::ParseIntError, time::Duration};
+use std::time::Duration;
 use thiserror::Error;
 
 /// Provides default value for stayawake_interval if STAYAWAKE_INTERVAL env var is not set
@@ -19,48 +22,16 @@ fn default_jump_by_pixel_max() -> usize {
     150
 }
 
+/// Provides default value for init_point if INIT_POINT env var is not set
+fn default_init_point() -> InitPoint {
+    InitPoint { x: 0, y: 0 }
+}
+
 /// Provides default value for working_area if WORKING_AREA env var is not set
 fn default_working_area() -> WorkingArea {
     WorkingArea {
         width: 1024,
         height: 768,
-    }
-}
-
-#[derive(Debug)]
-pub(crate) struct WorkingArea {
-    pub(crate) width: usize,
-    pub(crate) height: usize,
-}
-
-impl<'de> Deserialize<'de> for WorkingArea {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s: String = Deserialize::deserialize(deserializer)?;
-
-        let split: Vec<&str> = s.split('x').take(3).collect(); // Taking 3 instead of 2, to test correctness of the parser
-
-        let unexpected_err = || D::Error::custom("Unexpected error with WORKING_AREA");
-        let parse_err =
-            |err: ParseIntError| D::Error::custom(format!("WORKING_AREA parsing error: {err}"));
-
-        if split.len() == 2 {
-            let width = split
-                .get(0)
-                .ok_or_else(unexpected_err)
-                .and_then(|x| x.parse::<usize>().map_err(parse_err))?;
-
-            let height = split
-                .get(1)
-                .ok_or_else(unexpected_err)
-                .and_then(|x| x.parse::<usize>().map_err(parse_err))?;
-
-            Ok(WorkingArea { width, height })
-        } else {
-            Err(D::Error::custom(r#"Expected format: "1024x768""#))
-        }
     }
 }
 
@@ -84,6 +55,8 @@ pub(crate) struct Config {
     pub(crate) jump_by_pixel_min: usize,
     #[serde(default = "default_jump_by_pixel_max")]
     pub(crate) jump_by_pixel_max: usize,
+    #[serde(default = "default_init_point")]
+    pub(crate) init_point: InitPoint,
     #[serde(default = "default_working_area")]
     pub(crate) working_area: WorkingArea,
 }
@@ -144,6 +117,7 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: default_jump_by_pixel_min(),
             jump_by_pixel_max: default_jump_by_pixel_max(),
+            init_point: default_init_point(),
             working_area: default_working_area(),
         };
 
@@ -155,6 +129,7 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 100,
             jump_by_pixel_max: 150,
+            init_point: InitPoint { x: 0, y: 0 },
             working_area: WorkingArea {
                 width: 50,
                 height: 50,
@@ -178,6 +153,7 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 150,
             jump_by_pixel_max: 150,
+            init_point: InitPoint { x: 0, y: 0 },
             working_area: WorkingArea {
                 width: 150,
                 height: 150,
@@ -201,6 +177,22 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 99,
             jump_by_pixel_max: 99,
+            init_point: InitPoint { x: 0, y: 0 },
+            working_area: WorkingArea {
+                width: 100,
+                height: 100,
+            },
+        };
+
+        assert!(config.validate().is_ok());
+
+        // ----------------
+
+        let config = Config {
+            stayawake_interval: default_stayawake_interval(),
+            jump_by_pixel_min: 99,
+            jump_by_pixel_max: 99,
+            init_point: InitPoint { x: 50, y: 50 },
             working_area: WorkingArea {
                 width: 100,
                 height: 100,
@@ -215,6 +207,7 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 101,
             jump_by_pixel_max: 100,
+            init_point: InitPoint { x: 0, y: 0 },
             working_area: WorkingArea {
                 width: 150,
                 height: 150,
@@ -238,6 +231,7 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 0,
             jump_by_pixel_max: 1,
+            init_point: InitPoint { x: 0, y: 0 },
             working_area: WorkingArea {
                 width: 150,
                 height: 150,
@@ -258,6 +252,7 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 1,
             jump_by_pixel_max: 0,
+            init_point: InitPoint { x: 0, y: 0 },
             working_area: WorkingArea {
                 width: 150,
                 height: 150,
@@ -278,6 +273,7 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 100,
             jump_by_pixel_max: 100,
+            init_point: InitPoint { x: 0, y: 0 },
             working_area: WorkingArea {
                 width: 0,
                 height: 0,
@@ -301,6 +297,7 @@ mod tests {
             stayawake_interval: default_stayawake_interval(),
             jump_by_pixel_min: 100,
             jump_by_pixel_max: 100,
+            init_point: InitPoint { x: 0, y: 0 },
             working_area: WorkingArea {
                 width: 0,
                 height: 150,

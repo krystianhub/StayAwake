@@ -4,6 +4,7 @@
 //! As with the Python package the program is only triggered when you don't do any mouse movements and it is completely headless (it is intended to be used as a command line tool).
 
 mod config;
+mod models;
 mod offset_generator;
 mod power;
 

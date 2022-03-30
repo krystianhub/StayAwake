@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0] - 2022-03-??
+## [0.2.0] - 2022-03-30
 
 ### Added
 
-- Added new configuration property called `WORKING_AREA`
+- Added two new configuration properties called `INIT_POINT` and `WORKING_AREA`
 - Added basic unit tests
 
 ### Changed
