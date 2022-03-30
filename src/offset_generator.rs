@@ -96,13 +96,13 @@ mod tests {
         models::{InitPoint, WorkingArea},
     };
 
-    struct PointAssertor {
+    struct PointAsserter {
         offset_gen: OffsetGenerator,
     }
 
-    impl PointAssertor {
-        fn new(offset_gen: OffsetGenerator) -> PointAssertor {
-            PointAssertor { offset_gen }
+    impl PointAsserter {
+        fn new(offset_gen: OffsetGenerator) -> PointAsserter {
+            PointAsserter { offset_gen }
         }
 
         fn assert_point_eq(&mut self, start: Point, expected: Point) {
@@ -142,43 +142,43 @@ mod tests {
                 height: 800,
             },
         )?;
-        let mut point_assertor = PointAssertor::new(offset_gen);
+        let mut point_asserter = PointAsserter::new(offset_gen);
 
         let start = Point { x: 1, y: 1 };
         let expected = Point { x: 800, y: 800 };
-        point_assertor.assert_point_eq(start, expected);
+        point_asserter.assert_point_eq(start, expected);
 
         let start = Point { x: 800, y: 800 };
         let expected = Point { x: 1, y: 1 };
-        point_assertor.assert_point_eq(start, expected);
+        point_asserter.assert_point_eq(start, expected);
 
         let start = Point { x: 1000, y: 1000 };
         let expected = Point { x: 1, y: 1 };
-        point_assertor.assert_point_eq(start, expected);
+        point_asserter.assert_point_eq(start, expected);
 
         let start = Point { x: 0, y: 0 };
         let expected = Point { x: 799, y: 799 };
-        point_assertor.assert_point_eq(start, expected);
+        point_asserter.assert_point_eq(start, expected);
 
         let start = Point { x: 800, y: 0 };
         let expected = Point { x: 1, y: 799 };
-        point_assertor.assert_point_eq(start, expected);
+        point_asserter.assert_point_eq(start, expected);
 
         let start = Point { x: 0, y: 800 };
         let expected = Point { x: 799, y: 1 };
-        point_assertor.assert_point_eq(start, expected);
+        point_asserter.assert_point_eq(start, expected);
 
         let start = Point { x: 0, y: 799 };
         let expected = Point { x: 799, y: 0 };
-        point_assertor.assert_point_eq(start, expected);
+        point_asserter.assert_point_eq(start, expected);
 
         let start = Point { x: 0, y: 700 };
         let expected = Point { x: 799, y: 0 };
-        point_assertor.assert_point_eq(start, expected);
+        point_asserter.assert_point_eq(start, expected);
 
         let start = Point { x: 2, y: 2 };
         let expected = Point { x: 0, y: 0 };
-        point_assertor.assert_point_eq(start, expected);
+        point_asserter.assert_point_eq(start, expected);
 
         // -----------------
 
@@ -191,11 +191,11 @@ mod tests {
                 height: 51,
             },
         )?;
-        let mut point_assertor = PointAssertor::new(offset_gen);
+        let mut point_asserter = PointAsserter::new(offset_gen);
 
         let start = Point { x: 0, y: 0 };
         let expected = Point { x: 100, y: 100 };
-        point_assertor.assert_point_eq(start, expected);
+        point_asserter.assert_point_eq(start, expected);
 
         Ok(())
     }
