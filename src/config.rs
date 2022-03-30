@@ -95,7 +95,7 @@ impl Config {
 
         // working area size have to be bigger than jump by pixel max
         if self.working_area.width <= self.jump_by_pixel_max
-            && self.working_area.height <= self.jump_by_pixel_max
+            || self.working_area.height <= self.jump_by_pixel_max
         {
             return Err(InvalidProperty {
                 property: "working_area",
@@ -132,6 +132,30 @@ mod tests {
             init_point: InitPoint { x: 0, y: 0 },
             working_area: WorkingArea {
                 width: 50,
+                height: 500,
+            },
+        };
+
+        let result = config.validate();
+        assert!(result.is_err());
+
+        let result_err = result.unwrap_err();
+        let InvalidProperty { property, message } = result_err;
+        assert_eq!(property, "working_area");
+        assert_eq!(
+            message,
+            "working_area cannot be equal or smaller than jump_by_pixel_max"
+        );
+
+        // ----------------
+
+        let config = Config {
+            stayawake_interval: default_stayawake_interval(),
+            jump_by_pixel_min: 100,
+            jump_by_pixel_max: 150,
+            init_point: InitPoint { x: 0, y: 0 },
+            working_area: WorkingArea {
+                width: 500,
                 height: 50,
             },
         };
