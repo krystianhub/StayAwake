@@ -25,7 +25,7 @@ All settings like the time interval or the range of random mouse movement is ful
 
 ## Installation
 
-You can download the [latest version](https://github.com/krystianhub/StayAwake/releases/latest) from Github Releases and execute the binary via terminal.
+You can download the [latest version](https://github.com/krystianhub/StayAwake/releases/latest) from Github Releases.
 
 Alternatively, you can install it via **cargo** command:
 
@@ -41,7 +41,9 @@ There are only 4 available configuration properties:
 
 ```properties
 RUST_LOG=INFO # logging level
-STAYAWAKE_INTERVAL=60 # in seconds
-OFFSET_PIXEL_MIN=5 # in pixels
-OFFSET_PIXEL_MAX=15 # in pixels
+STAYAWAKE_INTERVAL=15 # in seconds
+JUMP_BY_PIXEL_MIN=100 # in pixels
+JUMP_BY_PIXEL_MAX=150 # in pixels
+INIT_POINT=0x0 # in pixels, starting point of the operating window area (usually it's a top-left corner of the screen; for example, 0x0)
+WORKING_AREA=1024x768 # in pixels, operating window area (usually it's a display resolution; for example, 1024x768)
 ```
