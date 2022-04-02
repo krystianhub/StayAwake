@@ -5,6 +5,7 @@
 
 [![CI](https://github.com/krystianhub/StayAwake/workflows/Build/badge.svg)](https://github.com/krystianhub/StayAwake/actions)
 [![crates.io](https://img.shields.io/crates/v/stayawake.svg)](https://crates.io/crates/stayawake)
+[![codecov](https://codecov.io/gh/krystianhub/StayAwake/branch/master/graph/badge.svg?token=S84RWLU7YA)](https://codecov.io/gh/krystianhub/StayAwake)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/krystianhub/StayAwake/blob/master/LICENSE)
 
 # StayAwake
