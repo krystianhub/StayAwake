@@ -16,37 +16,14 @@ jobs:
     strategy:
       matrix:
         name: [Windows, MacOS]
-
         include:
           - name: Windows
             os: windows-latest
           - name: MacOS
             os: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-
-      - uses: Swatinem/rust-cache@v1
-
-      - name: Run "cargo check"
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-
-      - name: Run "cargo test"
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-
-  codecov:
-    name: Code coverage for Codecov.io
-    runs-on: macos-latest
-    needs: build
+    env:
+      RUSTFLAGS: "-Zinstrument-coverage"
+      LLVM_PROFILE_FILE: "stayawake-%p-%m.profraw"
     steps:
       - uses: actions/checkout@v3
 
@@ -55,18 +32,19 @@ jobs:
         with:
           toolchain: nightly
           override: true
+          components: llvm-tools-preview
 
       - uses: Swatinem/rust-cache@v1
+
+      - name: Run "cargo build"
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
 
       - name: Run "cargo test"
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --no-fail-fast
-        env:
-          CARGO_INCREMENTAL: "0"
-          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"
-          RUSTDOCFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"
 
       - id: grcov
         name: Run "grcov"
