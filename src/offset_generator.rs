@@ -3,26 +3,34 @@ use mouse_rs::types::Point;
 use rand::{
     distributions::Uniform,
     prelude::{Distribution, ThreadRng},
-    thread_rng, Rng,
+    thread_rng, Rng, RngCore,
 };
 use tracing::trace;
 
 /// Random mouse position generator
-pub(crate) struct OffsetGenerator {
-    rng: ThreadRng,
+pub(crate) struct OffsetGenerator<R>
+where
+    R: RngCore,
+{
+    rng: R,
     range: Uniform<usize>,
     config: Config,
 }
 
-impl OffsetGenerator {
-    pub fn new(config: Config) -> OffsetGenerator {
-        OffsetGenerator {
+impl OffsetGenerator<ThreadRng> {
+    pub fn new(config: Config) -> Self {
+        Self {
             rng: thread_rng(),
             range: Uniform::new_inclusive(config.jump_by_pixel_min, config.jump_by_pixel_max),
             config,
         }
     }
+}
 
+impl<R> OffsetGenerator<R>
+where
+    R: RngCore,
+{
     fn get_random_sign(&mut self) -> i32 {
         if self.rng.gen() {
             1
@@ -90,6 +98,8 @@ impl OffsetGenerator {
 mod tests {
     use std::time::Duration;
 
+    use rand::rngs::mock::StepRng;
+
     use super::*;
     use crate::{
         config::ConfigError,
@@ -97,11 +107,11 @@ mod tests {
     };
 
     struct PointAsserter {
-        offset_gen: OffsetGenerator,
+        offset_gen: OffsetGenerator<StepRng>,
     }
 
     impl PointAsserter {
-        fn new(offset_gen: OffsetGenerator) -> PointAsserter {
+        fn new(offset_gen: OffsetGenerator<StepRng>) -> PointAsserter {
             PointAsserter { offset_gen }
         }
 
@@ -117,7 +127,8 @@ mod tests {
         jump_by_pixel_max: usize,
         init_point: InitPoint,
         working_area: WorkingArea,
-    ) -> Result<OffsetGenerator, ConfigError> {
+        mock_rng: StepRng,
+    ) -> Result<OffsetGenerator<StepRng>, ConfigError> {
         let test_config = Config {
             stayawake_interval: Duration::from_secs(1),
             jump_by_pixel_min,
@@ -128,7 +139,14 @@ mod tests {
 
         test_config.validate()?;
 
-        Ok(OffsetGenerator::new(test_config))
+        Ok(OffsetGenerator {
+            rng: mock_rng,
+            range: Uniform::new_inclusive(
+                test_config.jump_by_pixel_min,
+                test_config.jump_by_pixel_max,
+            ),
+            config: test_config,
+        })
     }
 
     #[test]
@@ -141,6 +159,7 @@ mod tests {
                 width: 800,
                 height: 800,
             },
+            StepRng::new(1, 0),
         )?;
         let mut point_asserter = PointAsserter::new(offset_gen);
 
@@ -190,11 +209,38 @@ mod tests {
                 width: 51,
                 height: 51,
             },
+            StepRng::new(1, 0),
         )?;
         let mut point_asserter = PointAsserter::new(offset_gen);
 
         let start = Point { x: 0, y: 0 };
         let expected = Point { x: 100, y: 100 };
+        point_asserter.assert_point_eq(start, expected);
+
+        // -----------------
+
+        let offset_gen = setup(
+            50,
+            50,
+            InitPoint { x: 0, y: 0 },
+            WorkingArea {
+                width: 500,
+                height: 500,
+            },
+            StepRng::new(0, 0),
+        )?;
+        let mut point_asserter = PointAsserter::new(offset_gen);
+
+        let start = Point { x: 250, y: 250 };
+        let expected = Point { x: 200, y: 200 };
+        point_asserter.assert_point_eq(start, expected);
+
+        let start = Point { x: 300, y: 300 };
+        let expected = Point { x: 250, y: 250 };
+        point_asserter.assert_point_eq(start, expected);
+
+        let start = Point { x: 0, y: 0 };
+        let expected = Point { x: 50, y: 50 };
         point_asserter.assert_point_eq(start, expected);
 
         Ok(())

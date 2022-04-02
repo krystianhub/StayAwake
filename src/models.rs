@@ -70,6 +70,8 @@ impl<'de> Deserialize<'de> for WorkingArea {
 mod tests {
     use super::*;
 
+    // TODO: Add deserialization unit tests
+
     #[test]
     fn test_parse_points() -> Result<()> {
         let result = parse_points("1000x1000")?;
