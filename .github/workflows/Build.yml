@@ -22,7 +22,7 @@ jobs:
           - name: MacOS
             os: macos-latest
     env:
-      RUSTFLAGS: "-Zinstrument-coverage"
+      RUSTFLAGS: "-C instrument-coverage"
       LLVM_PROFILE_FILE: "stayawake-%p-%m.profraw"
     steps:
       - uses: actions/checkout@v3
@@ -35,6 +35,11 @@ jobs:
           components: llvm-tools-preview
 
       - uses: Swatinem/rust-cache@v1
+
+      - name: Run "cargo clean"
+        uses: actions-rs/cargo@v1
+        with:
+          command: clean
 
       - name: Run "cargo build"
         uses: actions-rs/cargo@v1
@@ -49,6 +54,7 @@ jobs:
       - id: grcov
         name: Run "grcov"
         uses: actions-rs/grcov@v0.1
+
       - name: Run "codecov-action"
         uses: codecov/codecov-action@v2
         with:
