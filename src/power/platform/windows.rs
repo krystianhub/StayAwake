@@ -7,10 +7,10 @@ use winapi::um::{handleapi, winbase, winnt};
 
 use crate::power::POWER_DEFAULT_MESSAGE;
 
-const REQUEST_TYPES: &[LockType] = &[
-    LockType::AutomaticSuspend,
-    LockType::ManualSuspend,
-    LockType::DisplaySuspend,
+const REQUEST_TYPES: &[LockTypeSuspend] = &[
+    LockTypeSuspend::Automatic,
+    LockTypeSuspend::Manual,
+    LockTypeSuspend::Display,
 ];
 
 #[derive(Debug)]
@@ -20,13 +20,13 @@ pub enum Error {
 }
 
 #[derive(Debug, EnumSetType)]
-pub enum LockType {
+pub enum LockTypeSuspend {
     /// Automatic suspension (managed by the system idle timer)
-    AutomaticSuspend,
+    Automatic,
     /// Manual suspension
-    ManualSuspend,
+    Manual,
     /// Display suspension
-    DisplaySuspend,
+    Display,
 }
 
 impl std::error::Error for Error {}
@@ -50,7 +50,7 @@ impl Lock {
         let request =
             PowerRequest::new(POWER_DEFAULT_MESSAGE).map_err(Error::FailedToCreateRequest)?;
 
-        let mut failed: Option<(LockType, DWORD)> = None;
+        let mut failed: Option<(LockTypeSuspend, DWORD)> = None;
 
         for lock_type in REQUEST_TYPES.iter() {
             let result =
@@ -74,11 +74,11 @@ impl Lock {
         }
     }
 
-    fn request_type(lock_type: LockType) -> POWER_REQUEST_TYPE {
+    fn request_type(lock_type: LockTypeSuspend) -> POWER_REQUEST_TYPE {
         match lock_type {
-            LockType::AutomaticSuspend => winnt::PowerRequestSystemRequired,
-            LockType::ManualSuspend => winnt::PowerRequestAwayModeRequired,
-            LockType::DisplaySuspend => winnt::PowerRequestDisplayRequired,
+            LockTypeSuspend::Automatic => winnt::PowerRequestSystemRequired,
+            LockTypeSuspend::Manual => winnt::PowerRequestAwayModeRequired,
+            LockTypeSuspend::Display => winnt::PowerRequestDisplayRequired,
         }
     }
 }
