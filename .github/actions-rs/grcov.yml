@@ -1,5 +1,0 @@
-source-dir: .
-binary-path: ./target/debug/
-output-path: ./target/debug/coverage/
-branch: true
-ignore-not-existing: true
