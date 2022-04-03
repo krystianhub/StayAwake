@@ -52,7 +52,11 @@ jobs:
           command: test
 
       - name: Install "grcov"
-        run: if [[ ! -e ~/.cargo/bin/grcov ]]; then cargo install grcov; fi
+        uses: actions-rs/install@v0.1
+        with:
+          crate: grcov
+          version: latest
+          use-tool-cache: true
 
       - name: Run "grcov"
         run: grcov . --binary-path target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../**' --ignore '/*' -o coverage.lcov
