@@ -16,37 +16,14 @@ jobs:
     strategy:
       matrix:
         name: [Windows, MacOS]
-
         include:
           - name: Windows
             os: windows-latest
           - name: MacOS
             os: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-
-      - uses: Swatinem/rust-cache@v1
-
-      - name: Run "cargo check"
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-
-      - name: Run "cargo test"
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-
-  codecov:
-    name: Code coverage for Codecov.io
-    runs-on: macos-latest
-    needs: build
+    env:
+      RUSTFLAGS: "-C instrument-coverage"
+      LLVM_PROFILE_FILE: "stayawake-%p-%m.profraw"
     steps:
       - uses: actions/checkout@v3
 
@@ -55,24 +32,37 @@ jobs:
         with:
           toolchain: nightly
           override: true
+          components: llvm-tools-preview
 
       - uses: Swatinem/rust-cache@v1
+
+      - name: Run "cargo clean"
+        uses: actions-rs/cargo@v1
+        with:
+          command: clean
+
+      - name: Run "cargo build"
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
 
       - name: Run "cargo test"
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --no-fail-fast
-        env:
-          CARGO_INCREMENTAL: "0"
-          RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"
-          RUSTDOCFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"
 
-      - id: grcov
-        name: Run "grcov"
-        uses: actions-rs/grcov@v0.1
+      - name: Install "grcov"
+        uses: actions-rs/install@v0.1
+        with:
+          crate: grcov
+          version: latest
+          use-tool-cache: false
+
+      - name: Run "grcov"
+        run: grcov . --binary-path target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../**' --ignore '/*' -o  target/coverage.lcov
+
       - name: Run "codecov-action"
         uses: codecov/codecov-action@v2
         with:
-          files: ${{ steps.grcov.outputs.report }}
+          files: target/coverage.lcov
           fail_ci_if_error: true

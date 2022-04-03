@@ -1,3 +1,3 @@
 # TODO
 
-- (Optional) Github CI/CD publishing to crates.io
+- (Optional) GitHub CI/CD publishing to crates.io
