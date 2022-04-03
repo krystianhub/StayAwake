@@ -56,13 +56,13 @@ jobs:
         with:
           crate: grcov
           version: latest
-          use-tool-cache: true
+          use-tool-cache: false
 
       - name: Run "grcov"
-        run: grcov . --binary-path target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../**' --ignore '/*' -o coverage.lcov
+        run: grcov . --binary-path target/debug/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../**' --ignore '/*' -o  target/coverage.lcov
 
       - name: Run "codecov-action"
         uses: codecov/codecov-action@v2
         with:
-          files: coverage.lcov
+          files: target/coverage.lcov
           fail_ci_if_error: true
