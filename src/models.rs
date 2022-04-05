@@ -3,13 +3,13 @@ use std::num::ParseIntError;
 use anyhow::{anyhow, Result};
 use serde::{de::Error, Deserialize, Deserializer};
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub(crate) struct InitPoint {
     pub(crate) x: usize,
     pub(crate) y: usize,
 }
 
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub(crate) struct WorkingArea {
     pub(crate) width: usize,
     pub(crate) height: usize,
@@ -68,9 +68,112 @@ impl<'de> Deserialize<'de> for WorkingArea {
 
 #[cfg(test)]
 mod tests {
+    use crate::config::Config;
+
     use super::*;
 
-    // TODO: Add deserialization unit tests
+    #[test]
+    fn test_serde_correct_points_deserialization() -> Result<()> {
+        let example_json = r#"
+        {
+            "working_area": "150x350",
+            "init_point": "200x100"
+        }
+        "#;
+
+        let test_config: Config = serde_json::from_str(example_json)?;
+
+        // ----------
+
+        assert_eq!(
+            test_config.working_area,
+            WorkingArea {
+                width: 150,
+                height: 350
+            }
+        );
+
+        assert_eq!(test_config.init_point, InitPoint { x: 200, y: 100 });
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_serde_incorrect_points_deserialization() {
+        let example_json = r#"
+        {
+            "working_area": "150350",
+            "init_point": "200x100"
+        }
+        "#;
+
+        let test_config: Result<Config, _> = serde_json::from_str(example_json);
+
+        assert!(test_config.is_err());
+        let err = test_config.unwrap_err();
+
+        assert!(err.is_data());
+        assert!(err
+            .to_string()
+            .starts_with("[WORKING_AREA ERROR] expected format"));
+
+        // ----------
+
+        let example_json = r#"
+        {
+            "working_area": "whatxwhat",
+            "init_point": "200x100"
+        }
+        "#;
+
+        let test_config: Result<Config, _> = serde_json::from_str(example_json);
+
+        assert!(test_config.is_err());
+        let err = test_config.unwrap_err();
+
+        assert!(err.is_data());
+        assert!(err
+            .to_string()
+            .starts_with("[WORKING_AREA ERROR] parsing error"));
+
+        // ----------
+
+        let example_json = r#"
+        {
+            "working_area": "100x100",
+            "init_point": "100100"
+        }
+        "#;
+
+        let test_config: Result<Config, _> = serde_json::from_str(example_json);
+
+        assert!(test_config.is_err());
+        let err = test_config.unwrap_err();
+
+        assert!(err.is_data());
+        assert!(err
+            .to_string()
+            .starts_with("[INIT_POINT ERROR] expected format"));
+
+        // ----------
+
+        let example_json = r#"
+        {
+            "working_area": "100x100",
+            "init_point": "100xwhat"
+        }
+        "#;
+
+        let test_config: Result<Config, _> = serde_json::from_str(example_json);
+
+        assert!(test_config.is_err());
+        let err = test_config.unwrap_err();
+
+        assert!(err.is_data());
+        assert!(err
+            .to_string()
+            .starts_with("[INIT_POINT ERROR] parsing error"));
+    }
 
     #[test]
     fn test_parse_points() -> Result<()> {
