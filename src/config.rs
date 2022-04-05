@@ -9,7 +9,7 @@ use thiserror::Error;
 
 /// Provides default value for stayawake_interval if STAYAWAKE_INTERVAL env var is not set
 fn default_stayawake_interval() -> Duration {
-    Duration::from_secs(60)
+    Duration::from_secs(15)
 }
 
 /// Provides default value for jump_by_pixel_min if JUMP_BY_PIXEL_MIN env var is not set

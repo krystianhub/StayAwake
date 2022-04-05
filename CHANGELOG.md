@@ -7,16 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2022-04-05
+
 ### Added
 
-- (CI/CD) Added Codecov.io integration
+- (CI/CD) Codecov.io integration
+- Improved unit test coverage
 
 ## [0.2.0] - 2022-03-30
 
 ### Added
 
-- Added two new configuration properties called `INIT_POINT` and `WORKING_AREA`
-- Added basic unit tests
+- Two new configuration properties called `INIT_POINT` and `WORKING_AREA`
+- Basic unit test coverage
 
 ### Changed
 
@@ -28,15 +31,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Upgrade to 2021 edition of Rust
+- Upgraded to 2021 edition of Rust
 
 ## [0.1.1] - 2021-07-01
 
 ### Added
 
 - Support for inhibiting Power Management (Windows & MacOS)
-- Added [CHANGELOG.md](CHANGELOG.md) file
-- Added [LICENSE](LICENSE) file
+- [CHANGELOG.md](CHANGELOG.md) file
+- [LICENSE](LICENSE) file
 
 ## [0.1.0] - 2021-06-10
 
@@ -44,7 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First official release
 
-[Unreleased]: https://github.com/krystianhub/StayAwake/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/krystianhub/StayAwake/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/krystianhub/StayAwake/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/krystianhub/StayAwake/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/krystianhub/StayAwake/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/krystianhub/StayAwake/compare/v0.1.0...v0.1.1

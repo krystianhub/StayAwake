@@ -4,8 +4,8 @@
 </p>
 
 [![CI](https://github.com/krystianhub/StayAwake/actions/workflows/Build.yml/badge.svg?branch=master)](https://github.com/krystianhub/StayAwake/actions/workflows/Build.yml)
-[![crates.io](https://img.shields.io/crates/v/stayawake.svg)](https://crates.io/crates/stayawake)
 [![codecov](https://codecov.io/gh/krystianhub/StayAwake/branch/master/graph/badge.svg?token=S84RWLU7YA)](https://codecov.io/gh/krystianhub/StayAwake)
+[![crates.io](https://img.shields.io/crates/v/stayawake.svg)](https://crates.io/crates/stayawake)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/krystianhub/StayAwake/blob/master/LICENSE)
 
 # StayAwake
