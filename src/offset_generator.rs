@@ -44,20 +44,20 @@ where
         let mut x_offset = self.range.sample(&mut self.rng) as i32;
         let mut y_offset = self.range.sample(&mut self.rng) as i32;
 
-        let start_x = self.config.init_point.x;
-        let start_y = self.config.init_point.y;
-        let end_x = start_x + self.config.working_area.width;
-        let end_y = start_y + self.config.working_area.height;
+        let start_x = self.config.init_point.x as i32;
+        let start_y = self.config.init_point.y as i32;
+        let end_x = start_x + self.config.working_area.width as i32;
+        let end_y = start_y + self.config.working_area.height as i32;
 
         // Clamp initial values
         let init_x = init.x.clamp(start_x, end_x);
         let init_y = init.y.clamp(start_y, end_y);
 
-        let is_x_near_zero = (init_x as i32 - x_offset) < start_x as i32;
-        let is_y_near_zero = (init_y as i32 - y_offset) < start_y as i32;
+        let is_x_near_zero = (init_x - x_offset) < start_x;
+        let is_y_near_zero = (init_y - y_offset) < start_y;
 
-        let is_x_near_border = (init_x + x_offset as usize) > end_x;
-        let is_y_near_border = (init_y + y_offset as usize) > end_y;
+        let is_x_near_border = (init_x + x_offset) > end_x;
+        let is_y_near_border = (init_y + y_offset) > end_y;
 
         trace!(
             is_x_near_zero,
@@ -75,20 +75,20 @@ where
         }
 
         let x = if is_x_near_border {
-            init_x as i32 - x_offset
+            init_x - x_offset
         } else {
-            init_x as i32 + x_offset
+            init_x + x_offset
         };
 
         let y = if is_y_near_border {
-            init_y as i32 - y_offset
+            init_y - y_offset
         } else {
-            init_y as i32 + y_offset
+            init_y + y_offset
         };
 
         // Clamp final values
-        let x = x.clamp(start_x as i32, end_x as i32) as usize;
-        let y = y.clamp(start_y as i32, end_y as i32) as usize;
+        let x = x.clamp(start_x, end_x);
+        let y = y.clamp(start_y, end_y);
 
         Point { x, y }
     }
