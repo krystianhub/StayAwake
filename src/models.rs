@@ -23,7 +23,7 @@ fn parse_points(s: &str) -> Result<(usize, usize)> {
 
     if split.len() == 2 {
         let width = split
-            .get(0)
+            .first()
             .ok_or_else(unexpected_err)
             .and_then(|x| x.parse::<usize>().map_err(parse_err))?;
 
