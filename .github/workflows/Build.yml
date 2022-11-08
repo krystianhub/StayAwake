@@ -33,7 +33,7 @@ jobs:
           toolchain: stable
           components: llvm-tools-preview
 
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
 
       - name: Run "cargo clean"
         uses: actions-rs/cargo@v1
