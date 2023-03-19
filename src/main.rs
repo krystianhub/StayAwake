@@ -100,7 +100,7 @@ async fn main() -> Result<()> {
                 &new_pos
             );
 
-            if let Err(err) = mouse.move_to(new_pos.x as i32, new_pos.y as i32) {
+            if let Err(err) = mouse.move_to(new_pos.x, new_pos.y) {
                 error!(error = ?err, "Cannot move the mouse to a new position");
             }
         } else {
