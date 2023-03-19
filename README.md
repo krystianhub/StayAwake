@@ -14,15 +14,15 @@
 
 StayAwake is a simple program for Windows & MacOS to keep your system awake without affecting your workflow.
 
-Inspired by [stay-awake](https://pypi.org/project/stay-awake/) package for Python.
+It is inspired by the [stay-awake](https://pypi.org/project/stay-awake/) package for Python.
 
-As with the Python package the program is only triggered when you don't do any mouse movements and it is completely headless (it is intended to be used as a command line tool).
+The program is only triggered when you don't do any mouse movements and it is completely headless, intended to be used as a command line tool.
 
 ### How does it work?
 
-If in a span of **15** seconds you don't move your mouse, this program will automatically move your mouse for about **100** to **150** pixels randomly. There won't be any mouse displacement! If you are working, this will do absolutely nothing!
+If in a span of **15** seconds you don't move your mouse, StayAwake will automatically move your mouse for about **100** to **150** pixels randomly. There won't be any mouse displacement! If you are working, this will do absolutely nothing!
 
-All settings like the time interval or the range of random mouse movement is fully customizable via environment variables or **[.env](.env)** file.
+All settings like the time interval or the range of random mouse movement are fully customizable via environment variables or the **[.env](.env)** file.
 
 ## Installation
 
@@ -36,7 +36,7 @@ cargo install stayawake
 
 ## Configuration
 
-The application ships with a default configuration. However, it can be overridden by creating **[.env](.env)** file in the same location as the binary itself.
+The application ships with a default configuration, but it can be overridden by creating a **[.env](.env)** file in the same location as the binary itself.
 
 There are 6 available configuration properties:
 
